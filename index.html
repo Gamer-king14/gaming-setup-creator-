@@ -43,7 +43,7 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 .view-actions button{background:#ffffff12;color:#f4f6ff;border:1px solid #ffffff25;border-radius:10px;padding:8px 12px;font-weight:650}
 @media(max-width:480px){.scene3d{min-height:240px}.rotate-hint{font-size:11px}}
 
-</style>
+.scene3d{width:100%;min-height:340px;display:block;cursor:grab}.scene3d canvas{max-width:100%}.view-actions{position:relative;z-index:2}</style>
 </head>
 <body>
 <header><div class="logo">🎮 GAMING <span>SETUP CREATOR</span></div><div class="tag">DEIN STUDIO · DEIN STYLE</div></header>
@@ -54,10 +54,7 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
  <div class="panel-head"><strong>✨ Dein 3D-Studio</strong><small>Vorschau · Tastatur</small></div>
  <div class="stage">
   <div class="stage-label">DESIGN VIEW / 001</div>
-  <div class="scene3d" id="scene3d" aria-label="Drehbare 3D-Ansicht deiner Tastatur">
-   <div class="keyboard-wrap"><div class="keyboard rgb" id="keyboard"></div></div>
-   <div class="desk"></div><div class="stage-floor"></div>
-  </div>
+  <div class="scene3d" id="scene3d" aria-label="Echte interaktive 3D-Tastatur"><canvas id="keyboard3d" style="width:100%;height:340px;display:block;touch-action:none"></canvas></div>
   <div class="rotate-hint">👆 Mit Finger oder Maus ziehen, um die Ansicht zu drehen</div>
   <div class="view-actions"><button type="button" id="viewFront">Vorne</button><button type="button" id="viewTop">Oben</button><button type="button" id="viewReset">Ansicht zurücksetzen</button></div>
  </div>
@@ -86,47 +83,75 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 </div>
 </main>
 <footer>GAMING SETUP CREATOR · Deine Gaming-Welt. Dein Design.</footer>
-<script>
-const keyboard=document.getElementById('keyboard');
-const rows=[['Esc','1','2','3','4','5','6','7','8','9','0','-','=','⌫'],['Tab','Q','W','E','R','T','Y','U','I','O','P','[',']','↵'],['Caps','A','S','D','F','G','H','J','K','L',';',"'",'↵'],['Shift','Z','X','C','V','B','N','M',',','.','/','Shift'],['Ctrl','Win','Alt','space','Alt','Fn','☰']];
-rows.flat().forEach((label,i)=>{const key=document.createElement('div');key.className='key'+(label==='space'?' space':'')+(['Tab','Caps','Shift','⌫','↵'].includes(label)?' wide':'');key.title=label==='space'?'Leertaste':label;keyboard.appendChild(key)});
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
+const canvas=document.getElementById('keyboard3d');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(canvas.clientWidth,340,false);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+scene.background=null;
+const camera=new THREE.PerspectiveCamera(34,canvas.clientWidth/340,.1,100);
+camera.position.set(7,7,9);
+const ambient=new THREE.HemisphereLight(0xcbd5ff,0x171329,2.1);scene.add(ambient);
+const keyLight=new THREE.DirectionalLight(0xffffff,3);keyLight.position.set(4,9,6);scene.add(keyLight);
+const rim=new THREE.PointLight(0x8b5cf6,22,18);rim.position.set(-5,3,-4);scene.add(rim);
+const group=new THREE.Group();scene.add(group);
+const mat=(color,metalness=0.25,roughness=.38)=>new THREE.MeshStandardMaterial({color,metalness,roughness});
+const caseMat=mat('#252b40',.45,.3), bottomMat=mat('#111827',.35,.45), keyMat=mat('#68718a',.25,.3), legendMat=mat('#f8faff',.1,.5);
+const body=new THREE.Mesh(new THREE.BoxGeometry(11.8,.72,4.25),caseMat);body.position.y=.45;body.castShadow=true;body.receiveShadow=true;group.add(body);
+const base=new THREE.Mesh(new THREE.BoxGeometry(11.65,.18,4.12),bottomMat);base.position.y=.02;group.add(base);
+const rows=[14,14,13,12,7];
+const labels=['ESC','1','2','3','4','5','6','7','8','9','0','-','=','⌫','TAB','Q','W','E','R','T','Y','U','I','O','P','[',']','↵','CAPS','A','S','D','F','G','H','J','K','L',';',"'",'SHIFT','Z','X','C','V','B','N','M',',','.','/','SHIFT','CTRL','WIN','ALT','SPACE','ALT','FN','MENU'];
+const keyMeshes=[];
+let idx=0;
+for(let r=0;r<5;r++){
+ const count=rows[r],z=1.55-r*.78;
+ for(let c=0;c<count;c++){
+  const wide=(r===4&&c===3)?3.9:((r===0&&c===13)||(r===1&&c===13)||(r===2&&c===0)||(r===3&&(c===0||c===11))?1.15:.68);
+  const w=wide, x=-5.2+c*.76+(r===4&&c>3?2.4:0);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(w,.24,.62),keyMat);
+  cap.position.set(x,.94,z);cap.castShadow=true;cap.receiveShadow=true;group.add(cap);keyMeshes.push(cap);
+  const top=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.2,w-.08),.025,.52),legendMat);
+  top.position.set(x,1.075,z);group.add(top);
+  idx++;
+ }
+}
+const desk=new THREE.Mesh(new THREE.BoxGeometry(15,.18,8),mat('#20283b',.25,.65));desk.position.set(0,-.28,0);desk.receiveShadow=true;scene.add(desk);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),mat('#0b1020',.05,.9));floor.rotation.x=-Math.PI/2;floor.position.y=-.4;scene.add(floor);
+scene.add(new THREE.AmbientLight(0x8b5cf6,.28));
+let rotX=-.48,rotY=.55,drag=false,px=0,py=0;
+function orient(){group.rotation.set(rotX,rotY,0);desk.rotation.y=rotY*.15;}
+canvas.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;rotY+=(e.clientX-px)*.009;rotX=Math.max(-1.2,Math.min(.5,rotX+(e.clientY-py)*.006));px=e.clientX;py=e.clientY;orient()});
+for(const ev of ['pointerup','pointercancel'])canvas.addEventListener(ev,()=>drag=false);
+function resize(){const w=canvas.clientWidth||600;renderer.setSize(w,340,false);camera.aspect=w/340;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(canvas);orient();
+function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
 const state={case:'#252b40',rgb:true,brightness:70,style:'classic'};
 function update(){
- keyboard.style.background=`linear-gradient(145deg,${state.case},#151a2a)`;
- keyboard.style.borderColor=state.case;
- keyboard.classList.toggle('rgb',state.rgb&&state.brightness>0);
- keyboard.style.setProperty('--glow',`rgba(139,92,246,${state.brightness/100})`);
- const keys=keyboard.querySelectorAll('.key');
- keys.forEach(k=>{let bg=state.style==='light'?'linear-gradient(145deg,#fff,#cbd5e1)':state.style==='dark'?'linear-gradient(145deg,#343b4d,#111827)':'linear-gradient(145deg,#68718a,#30384e)';k.style.background=bg});
+ caseMat.color.set(state.case);
+ const colors={classic:'#68718a',light:'#e5e7eb',dark:'#252b3b'};
+ keyMat.color.set(colors[state.style]);
+ rim.intensity=state.rgb?state.brightness*.22:0;
+ keyLight.intensity=2.2+state.brightness/100;
  document.getElementById('brightnessValue').textContent=state.brightness+'%';
  document.getElementById('designName').textContent=document.getElementById('preset').value;
 }
-document.querySelectorAll('.swatch').forEach(btn=>btn.addEventListener('click',()=>{state.case=btn.dataset.color;document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));update()}));
+document.querySelectorAll('.swatch').forEach(b=>b.addEventListener('click',()=>{state.case=b.dataset.color;document.querySelectorAll('.swatch').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));update()}));
 document.getElementById('keyStyle').addEventListener('change',e=>{state.style=e.target.value;update()});
 document.getElementById('brightness').addEventListener('input',e=>{state.brightness=+e.target.value;update()});
 document.getElementById('rgbToggle').addEventListener('change',e=>{state.rgb=e.target.checked;update()});
 document.getElementById('preset').addEventListener('change',update);
-document.getElementById('save').addEventListener('click',()=>{const design={...state,name:document.getElementById('preset').value};try{localStorage.setItem('gsc-design',JSON.stringify(design));document.getElementById('saved').textContent='✓ Lokal gespeichert';document.getElementById('status').textContent='Design gespeichert'}catch(e){document.getElementById('saved').textContent='Speichern nicht verfügbar'}});
-document.getElementById('reset').addEventListener('click',()=>{state.case='#252b40';state.rgb=true;state.brightness=70;state.style='classic';document.getElementById('brightness').value=70;document.getElementById('rgbToggle').checked=true;document.getElementById('keyStyle').value='classic';document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color==='#252b40')));document.getElementById('preset').value='Neon Purple';document.getElementById('saved').textContent='Noch nicht gespeichert';update()});
+document.getElementById('save').addEventListener('click',()=>{try{localStorage.setItem('gsc-design',JSON.stringify({...state,name:document.getElementById('preset').value}));document.getElementById('saved').textContent='✓ Lokal gespeichert';document.getElementById('status').textContent='Design gespeichert'}catch(e){document.getElementById('saved').textContent='Speichern nicht verfügbar'}});
+document.getElementById('reset').addEventListener('click',()=>{Object.assign(state,{case:'#252b40',rgb:true,brightness:70,style:'classic'});document.getElementById('brightness').value=70;document.getElementById('rgbToggle').checked=true;document.getElementById('keyStyle').value='classic';document.getElementById('preset').value='Neon Purple';document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color==='#252b40')));document.getElementById('saved').textContent='Noch nicht gespeichert';update()});
+document.getElementById('viewFront').addEventListener('click',()=>{rotX=-.15;rotY=0;orient()});
+document.getElementById('viewTop').addEventListener('click',()=>{rotX=-1.05;rotY=0;orient()});
+document.getElementById('viewReset').addEventListener('click',()=>{rotX=-.48;rotY=.55;orient()});
 update();
-
-// 3D-Drehung per Maus und Touch (Pointer Events)
-const stage=document.querySelector('.stage');
-const scene=document.getElementById('scene3d');
-let rotX=32,rotY=0,dragging=false,lastX=0,lastY=0;
-function renderRotation(){scene.style.transform=`rotateX(${rotX}deg) rotateY(${rotY}deg)`;}
-function startDrag(e){dragging=true;lastX=e.clientX;lastY=e.clientY;scene.classList.add('dragging');stage.setPointerCapture?.(e.pointerId);}
-function moveDrag(e){if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;rotY+=dx*.65;rotX=Math.max(-12,Math.min(75,rotX-dy*.5));renderRotation();}
-function endDrag(){dragging=false;scene.classList.remove('dragging');}
-stage.addEventListener('pointerdown',startDrag);
-stage.addEventListener('pointermove',moveDrag);
-stage.addEventListener('pointerup',endDrag);
-stage.addEventListener('pointercancel',endDrag);
-document.getElementById('viewFront').addEventListener('click',()=>{rotX=12;rotY=0;renderRotation()});
-document.getElementById('viewTop').addEventListener('click',()=>{rotX=68;rotY=0;renderRotation()});
-document.getElementById('viewReset').addEventListener('click',()=>{rotX=32;rotY=0;renderRotation()});
-renderRotation();
-
 </script>
 </body>
 </html>

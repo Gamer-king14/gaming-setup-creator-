@@ -43,7 +43,10 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 .view-actions button{background:#ffffff12;color:#f4f6ff;border:1px solid #ffffff25;border-radius:10px;padding:8px 12px;font-weight:650}
 @media(max-width:480px){.scene3d{min-height:240px}.rotate-hint{font-size:11px}}
 
-.scene3d{width:100%;min-height:340px;display:block;cursor:grab}.scene3d canvas{max-width:100%}.view-actions{position:relative;z-index:2}</style>
+.scene3d{width:100%;min-height:340px;display:block;cursor:grab}.scene3d canvas{max-width:100%}.view-actions{position:relative;z-index:2}
+.component-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px}.component-btn{border:1px solid #ffffff20;background:#0d1222;color:#e9eaff;padding:10px 8px;border-radius:11px;text-align:left;font:600 13px system-ui;cursor:pointer}.component-btn.active{border-color:#a78bfa;background:#35245c;box-shadow:0 0 0 1px #a78bfa55}.arrange-hint{font-size:12px;color:#c4b5fd;margin:10px 0 0}.scene3d{touch-action:none}#keyboard3d{cursor:grab}#keyboard3d:active{cursor:grabbing}
+@media(max-width:480px){.component-btn{font-size:12px;padding:9px 6px}}
+</style>
 </head>
 <body>
 <header><div class="logo">🎮 GAMING <span>SETUP CREATOR</span></div><div class="tag">DEIN STUDIO · DEIN STYLE</div></header>
@@ -63,6 +66,20 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 <section class="panel">
  <div class="panel-head"><strong>🛠️ Design-Werkbank</strong><small>Änderungen live</small></div>
  <div class="controls">
+  <div class="control"><label>🧩 Komponenten-Menü <small>Wähle ein Teil aus</small></label>
+   <div class="component-menu" id="componentMenu">
+    <button type="button" class="component-btn active" data-target="keyboard">⌨️ Tastatur</button>
+    <button type="button" class="component-btn" data-target="monitor">🖥️ Monitor</button>
+    <button type="button" class="component-btn" data-target="pc">🖥️ Gaming-PC</button>
+    <button type="button" class="component-btn" data-target="mouse">🖱️ Maus</button>
+    <button type="button" class="component-btn" data-target="mousepad">🟪 Mauspad</button>
+    <button type="button" class="component-btn" data-target="headset">🎧 Headset</button>
+    <button type="button" class="component-btn" data-target="speakerLeft">🔊 Linker Lautsprecher</button>
+    <button type="button" class="component-btn" data-target="speakerRight">🔊 Rechter Lautsprecher</button>
+   </div>
+   <p class="arrange-hint" id="arrangeHint">Tastatur ausgewählt – ziehe sie im 3D-Studio an eine neue Stelle.</p>
+   <div class="actions"><button class="btn secondary" type="button" id="rotateItem">⟳ Teil drehen</button><button class="btn secondary" type="button" id="resetLayout">↺ Anordnung zurücksetzen</button></div>
+  </div>
   <div class="control"><label>Tastatur-Farbe <small>Gehäuse</small></label>
    <div class="swatches" id="swatches">
     <button class="swatch" style="background:#252b40" data-color="#252b40" aria-label="Schwarz" aria-pressed="true"></button>
@@ -182,9 +199,36 @@ const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),mat('#0b1020',.05,.9
 scene.add(new THREE.AmbientLight(0x8b5cf6,.28));
 let rotX=-.48,rotY=.55,drag=false,px=0,py=0;
 function orient(){group.rotation.set(rotX,rotY,0);desk.rotation.y=rotY*.15;}
-canvas.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener('pointermove',e=>{if(!drag)return;rotY+=(e.clientX-px)*.009;rotX=Math.max(-1.2,Math.min(.5,rotX+(e.clientY-py)*.006));px=e.clientX;py=e.clientY;orient()});
-for(const ev of ['pointerup','pointercancel'])canvas.addEventListener(ev,()=>drag=false);
+const draggable={keyboard:group,...accessories};
+let selected='keyboard',dragItem=null,dragStart=null;
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),movePlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.65),hitPoint=new THREE.Vector3();
+function selectPart(name){
+ selected=name;
+ document.querySelectorAll('.component-btn').forEach(b=>b.classList.toggle('active',b.dataset.target===name));
+ document.getElementById('arrangeHint').textContent=(document.querySelector('[data-target="'+name+'"]')?.textContent||name)+' ausgewählt – ziehe das Teil im 3D-Studio an eine neue Stelle.';
+}
+document.querySelectorAll('.component-btn').forEach(b=>b.addEventListener('click',()=>selectPart(b.dataset.target)));
+function findRoot(obj){while(obj&&obj.parent&&!Object.values(draggable).includes(obj))obj=obj.parent;return obj;}
+function setPointer(e){const r=canvas.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera);}
+canvas.addEventListener('pointerdown',e=>{
+ setPointer(e);const roots=Object.values(draggable).filter(o=>o&&o.visible);
+ const hits=raycaster.intersectObjects(roots,true);
+ const root=hits.length?findRoot(hits[0].object):null;
+ if(root&&root===draggable[selected]){
+  dragItem=root;drag=true;canvas.setPointerCapture(e.pointerId);
+  const y=root.position.y;movePlane.constant=-y;
+  if(raycaster.ray.intersectPlane(movePlane,hitPoint))dragStart={x:hitPoint.x-root.position.x,z:hitPoint.z-root.position.z};
+ }else{drag=true;dragItem=null;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId);}
+});
+canvas.addEventListener('pointermove',e=>{
+ if(!drag)return;
+ if(dragItem&&dragStart){setPointer(e);const p=new THREE.Vector3();if(raycaster.ray.intersectPlane(movePlane,p)){dragItem.position.x=p.x-dragStart.x;dragItem.position.z=p.z-dragStart.z;}}
+ else{rotY+=(e.clientX-px)*.009;rotX=Math.max(-1.2,Math.min(.5,rotX+(e.clientY-py)*.006));px=e.clientX;py=e.clientY;orient();}
+});
+for(const ev of ['pointerup','pointercancel'])canvas.addEventListener(ev,()=>{drag=false;dragItem=null;dragStart=null;});
+document.getElementById('rotateItem').addEventListener('click',()=>{const o=draggable[selected];if(o)o.rotation.y+=Math.PI/4;});
+document.getElementById('resetLayout').addEventListener('click',()=>{Object.values(draggable).forEach(o=>{if(o){o.position.set(0,0,0);o.rotation.set(0,0,0);}});});
+
 function resize(){const w=canvas.clientWidth||600;renderer.setSize(w,340,false);camera.aspect=w/340;camera.updateProjectionMatrix()}
 new ResizeObserver(resize).observe(canvas);orient();
 function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
@@ -204,7 +248,7 @@ document.getElementById('keyStyle').addEventListener('change',e=>{state.style=e.
 document.getElementById('brightness').addEventListener('input',e=>{state.brightness=+e.target.value;update()});
 document.getElementById('rgbToggle').addEventListener('change',e=>{state.rgb=e.target.checked;update()});
 document.getElementById('preset').addEventListener('change',update);
-document.getElementById('save').addEventListener('click',()=>{try{localStorage.setItem('gsc-design',JSON.stringify({...state,name:document.getElementById('preset').value}));document.getElementById('saved').textContent='✓ Lokal gespeichert';document.getElementById('status').textContent='Design gespeichert'}catch(e){document.getElementById('saved').textContent='Speichern nicht verfügbar'}});
+document.getElementById('save').addEventListener('click',()=>{try{localStorage.setItem('gsc-design',JSON.stringify({...state,name:document.getElementById('preset').value,layout:Object.fromEntries(Object.entries(draggable).map(([k,o])=>[k,{position:o.position.toArray(),rotation:o.rotation.toArray()}]))}));document.getElementById('saved').textContent='✓ Lokal gespeichert';document.getElementById('status').textContent='Design gespeichert'}catch(e){document.getElementById('saved').textContent='Speichern nicht verfügbar'}});
 document.getElementById('reset').addEventListener('click',()=>{Object.assign(state,{case:'#252b40',rgb:true,brightness:70,style:'classic'});document.getElementById('brightness').value=70;document.getElementById('rgbToggle').checked=true;document.getElementById('keyStyle').value='classic';document.getElementById('preset').value='Neon Purple';document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color==='#252b40')));document.getElementById('saved').textContent='Noch nicht gespeichert';update()});
 document.getElementById('viewFront').addEventListener('click',()=>{rotX=-.15;rotY=0;orient()});
 document.getElementById('viewTop').addEventListener('click',()=>{rotX=-1.05;rotY=0;orient()});

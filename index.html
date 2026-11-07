@@ -18,8 +18,8 @@ main{max-width:1250px;margin:auto;padding:30px clamp(14px,3vw,36px) 60px}.intro{
 .stage-label{align-self:flex-start;color:#aeb7d3;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .desk{width:min(92%,620px);height:24px;background:linear-gradient(90deg,#30384d,#68718a 50%,#252c40);border-radius:5px;box-shadow:0 15px 22px #0008;transform:rotateX(8deg);margin-top:18px}
 .keyboard-wrap{width:min(90%,550px);transform:rotateX(23deg) rotateZ(-4deg);filter:drop-shadow(0 25px 16px #0009);transition:.25s}
-.keyboard{background:linear-gradient(145deg,#3b4359,#171c2c);border:3px solid #59627a;border-bottom:11px solid #111626;border-radius:18px 18px 14px 14px;padding:14px 14px 19px;display:grid;grid-template-columns:repeat(15,1fr);gap:7px;box-shadow:inset 0 4px 8px #ffffff22,inset 0 -8px 12px #0008,0 8px 0 #080c17}
-.key{height:clamp(27px,4vw,43px);border-radius:6px;background:linear-gradient(145deg,#8791aa 0%,#505a73 48%,#30384e 100%);border:1px solid #aab3c633;box-shadow:0 7px 0 #171c2b,0 9px 10px #0009,inset 0 2px 3px #ffffff45;position:relative}.key:after{content:"";position:absolute;inset:3px 4px auto;height:4px;border-radius:4px;background:#ffffff42;box-shadow:0 1px 2px #ffffff20}.key.space{grid-column:span 5}.key.wide{grid-column:span 2}
+.keyboard{background:linear-gradient(145deg,#3b4359,#171c2c);border:4px solid #59627a;border-bottom:22px solid #090e1b;border-radius:18px 18px 16px 16px;padding:16px 15px 25px;display:grid;grid-template-columns:repeat(15,1fr);gap:7px;box-shadow:inset 0 5px 9px #ffffff30,inset 0 -10px 14px #0009,0 12px 0 #070a12,0 19px 24px #0009}
+.key{height:clamp(32px,4.5vw,48px);border-radius:7px;background:linear-gradient(145deg,#a3adc4 0%,#59647e 48%,#30384e 100%);border:1px solid #c3cbe044;box-shadow:0 10px 0 #171c2b,0 13px 12px #000a,inset 0 3px 4px #ffffff55;position:relative}.key:after{content:"";position:absolute;inset:3px 4px auto;height:5px;border-radius:4px;background:#ffffff55;box-shadow:0 1px 2px #ffffff20}.key.space{grid-column:span 5}.key.wide{grid-column:span 2}
 .keyboard.rgb .key{box-shadow:0 0 9px var(--glow),0 4px 0 #171c2b,0 5px 8px #0008}
 .stage-floor{width:min(96%,650px);height:18px;background:linear-gradient(90deg,transparent,#8b5cf633,transparent);filter:blur(9px);margin-top:24px}
 .controls{padding:20px;display:grid;gap:17px}.control label{display:flex;justify-content:space-between;gap:10px;font-weight:650;margin-bottom:9px}.control small{color:var(--muted);font-weight:400}
@@ -29,7 +29,7 @@ select,input[type=range]{width:100%}select{background:#0d1222;color:white;border
 .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:750;cursor:pointer;color:white;background:linear-gradient(135deg,#8b5cf6,#6366f1)}.btn.secondary{background:#ffffff12;border:1px solid #ffffff22}.stats{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
 footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.stage{min-height:350px}}
-@media(max-width:480px){header{padding:15px}.tag{font-size:10px}.stage{min-height:300px;padding:20px 8px}.keyboard{gap:3px;padding:9px}.key{height:19px}.controls{padding:16px}}
+@media(max-width:480px){header{padding:15px}.tag{font-size:10px}.stage{min-height:300px;padding:20px 8px}.keyboard{gap:3px;padding:11px 9px 18px;border-bottom-width:17px}.key{height:25px;box-shadow:0 7px 0 #171c2b,0 9px 8px #0009,inset 0 2px 3px #ffffff45}.controls{padding:16px}}
 
 /* Drehbare 3D-Studio-Ansicht */
 .stage{touch-action:none;position:relative}

@@ -76,6 +76,16 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
   <div class="control"><label>RGB-Beleuchtung <small id="brightnessValue">70%</small></label><input id="brightness" type="range" min="0" max="100" value="70"></div>
   <label class="toggle"><input id="rgbToggle" type="checkbox" checked> RGB-Beleuchtung einschalten</label>
   <div class="control"><label>Dein Design benennen</label><select id="preset"><option>Neon Purple</option><option>Arctic White</option><option>Cyber Green</option><option>Red Storm</option><option>My Custom Build</option></select></div>
+  <div class="control"><label>Dein Gaming-Setup <small>Komponenten ein-/ausblenden</small></label>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+    <label class="toggle"><input type="checkbox" data-part="monitor" checked> Monitor</label>
+    <label class="toggle"><input type="checkbox" data-part="pc" checked> Gaming-PC</label>
+    <label class="toggle"><input type="checkbox" data-part="mouse" checked> Maus</label>
+    <label class="toggle"><input type="checkbox" data-part="mousepad" checked> Mauspad</label>
+    <label class="toggle"><input type="checkbox" data-part="headset" checked> Headset</label>
+    <label class="toggle"><input type="checkbox" data-part="speakerLeft" checked> Lautsprecher</label>
+   </div>
+  </div>
   <div class="actions"><button class="btn" id="save">💾 Design speichern</button><button class="btn secondary" id="reset">↺ Zurücksetzen</button></div>
   <div class="stats"><span>Bauteil: Mechanische Tastatur</span><span id="saved">Noch nicht gespeichert</span></div>
  </div>
@@ -122,6 +132,52 @@ for(let r=0;r<5;r++){
  }
 }
 const desk=new THREE.Mesh(new THREE.BoxGeometry(15,.18,8),mat('#20283b',.25,.65));desk.position.set(0,-.28,0);desk.receiveShadow=true;scene.add(desk);
+
+/* Weitere Teile des Gaming-Setups */
+const accessories = {};
+function part(geometry, material, x,y,z, parent=scene){
+ const mesh=new THREE.Mesh(geometry,material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+}
+const dark=mat('#171c2d',.35,.35), trim=mat('#59627a',.55,.3), screenMat=new THREE.MeshStandardMaterial({color:'#17284c',emissive:'#2456b8',emissiveIntensity:.75,metalness:.15,roughness:.2});
+/* Monitor mit Standfuß */
+const monitor= new THREE.Group();scene.add(monitor);
+part(new THREE.BoxGeometry(5.7,3.35,.22),dark,0,3.05,-2.75,monitor);
+part(new THREE.BoxGeometry(5.42,3.07,.035),screenMat,0,3.07,-2.615,monitor);
+part(new THREE.BoxGeometry(.32,.75,.28),trim,0,1.05,-2.72,monitor);
+part(new THREE.BoxGeometry(1.9,.12,.85),dark,0,.68,-2.55,monitor);
+accessories.monitor=monitor;
+/* Mauspad und Maus */
+const pad=part(new THREE.BoxGeometry(4.2,.08,2.7),mat('#252044',.1,.85),-3.4,.63,.15);
+accessories.mousepad=pad;
+const mouse=new THREE.Group();scene.add(mouse);
+part(new THREE.BoxGeometry(.72,.42,1.18),trim,-3.4,.9,.05,mouse);
+part(new THREE.BoxGeometry(.035,.04,.38),mat('#a78bfa',.2,.3),-3.4,1.12,-.02,mouse);
+accessories.mouse=mouse;
+/* Gaming-PC-Tower rechts */
+const tower=new THREE.Group();scene.add(tower);
+part(new THREE.BoxGeometry(2.05,4.15,2.15),dark,6.05,1.75,-1.25,tower);
+part(new THREE.BoxGeometry(1.82,3.85,.045),mat('#25304a',.25,.25),6.05,1.78,-.145,tower);
+const fanMat=new THREE.MeshStandardMaterial({color:'#8b5cf6',emissive:'#6d28d9',emissiveIntensity:1.5});
+for(let i=0;i<3;i++){
+ const fan=part(new THREE.TorusGeometry(.43,.055,8,32),fanMat,5.55,2.8-i*.92,-.105,tower);
+ fan.rotation.x=0;
+}
+accessories.pc=tower;
+/* Headset links neben dem Setup */
+const headset=new THREE.Group();scene.add(headset);
+const band=part(new THREE.TorusGeometry(.72,.11,12,40,Math.PI),trim,-6.0,1.55,-.2,headset);
+band.rotation.z=Math.PI;
+part(new THREE.BoxGeometry(.38,.72,.28),dark,-6.68,1.22,-.2,headset);
+part(new THREE.BoxGeometry(.38,.72,.28),dark,-5.32,1.22,-.2,headset);
+accessories.headset=headset;
+/* dezente Lautsprecher */
+for(const x of [-7.1,7.1]){
+ const speaker=new THREE.Group();scene.add(speaker);
+ part(new THREE.BoxGeometry(.85,2.0,.8),dark,x,1.0,-2.1,speaker);
+ part(new THREE.CircleGeometry(.25,32),fanMat,x,1.35,-1.68,speaker);
+ accessories[x<0?'speakerLeft':'speakerRight']=speaker;
+}
+
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),mat('#0b1020',.05,.9));floor.rotation.x=-Math.PI/2;floor.position.y=-.4;scene.add(floor);
 scene.add(new THREE.AmbientLight(0x8b5cf6,.28));
 let rotX=-.48,rotY=.55,drag=false,px=0,py=0;
@@ -133,6 +189,7 @@ function resize(){const w=canvas.clientWidth||600;renderer.setSize(w,340,false);
 new ResizeObserver(resize).observe(canvas);orient();
 function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
 const state={case:'#252b40',rgb:true,brightness:70,style:'classic'};
+document.querySelectorAll('[data-part]').forEach(box=>box.addEventListener('change',()=>{const item=accessories[box.dataset.part];if(item)item.visible=box.checked}));
 function update(){
  caseMat.color.set(state.case);
  const colors={classic:'#68718a',light:'#e5e7eb',dark:'#252b3b'};

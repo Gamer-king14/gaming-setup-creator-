@@ -201,6 +201,7 @@ let rotX=-.48,rotY=.55,drag=false,px=0,py=0;
 function orient(){group.rotation.set(rotX,rotY,0);desk.rotation.y=rotY*.15;}
 const draggable={keyboard:group,...accessories};
 let selected='keyboard',dragItem=null,dragStart=null;
+const defaultTransforms=Object.fromEntries(Object.entries(draggable).map(([k,o])=>[k,{position:o.position.clone(),rotation:o.rotation.clone()}]));
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),movePlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.65),hitPoint=new THREE.Vector3();
 function selectPart(name){
  selected=name;
@@ -227,7 +228,7 @@ canvas.addEventListener('pointermove',e=>{
 });
 for(const ev of ['pointerup','pointercancel'])canvas.addEventListener(ev,()=>{drag=false;dragItem=null;dragStart=null;});
 document.getElementById('rotateItem').addEventListener('click',()=>{const o=draggable[selected];if(o)o.rotation.y+=Math.PI/4;});
-document.getElementById('resetLayout').addEventListener('click',()=>{Object.values(draggable).forEach(o=>{if(o){o.position.set(0,0,0);o.rotation.set(0,0,0);}});});
+document.getElementById('resetLayout').addEventListener('click',()=>{Object.entries(draggable).forEach(([k,o])=>{if(o&&defaultTransforms[k]){o.position.copy(defaultTransforms[k].position);o.rotation.copy(defaultTransforms[k].rotation);}});});
 
 function resize(){const w=canvas.clientWidth||600;renderer.setSize(w,340,false);camera.aspect=w/340;camera.updateProjectionMatrix()}
 new ResizeObserver(resize).observe(canvas);orient();

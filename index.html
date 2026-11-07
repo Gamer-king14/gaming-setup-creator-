@@ -18,7 +18,7 @@ main{max-width:1250px;margin:auto;padding:30px clamp(14px,3vw,36px) 60px}.intro{
 .stage-label{align-self:flex-start;color:#aeb7d3;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
 .desk{width:min(92%,620px);height:24px;background:linear-gradient(90deg,#30384d,#68718a 50%,#252c40);border-radius:5px;box-shadow:0 15px 22px #0008;transform:rotateX(8deg);margin-top:18px}
 .keyboard-wrap{width:min(90%,550px);transform:rotateX(23deg) rotateZ(-4deg);filter:drop-shadow(0 25px 16px #0009);transition:.25s}
-.keyboard{position:relative;background:linear-gradient(145deg,#3b4359,#171c2c);border:4px solid #59627a;border-bottom:22px solid #090e1b;border-radius:18px 18px 16px 16px;padding:16px 15px 25px;display:grid;grid-template-columns:repeat(15,1fr);gap:7px;box-shadow:inset 0 5px 9px #ffffff30,inset 0 -10px 14px #0009,0 12px 0 #070a12,0 19px 24px #0009}.keyboard:before{content:"";position:absolute;left:9px;right:9px;bottom:-29px;height:22px;border-radius:0 0 12px 12px;background:linear-gradient(180deg,#30394f,#080c17);border:1px solid #65708a;box-shadow:0 8px 12px #0008;pointer-events:none;z-index:0}
+.keyboard{position:relative;background:linear-gradient(145deg,#3b4359,#171c2c);border:4px solid #59627a;border-bottom:32px solid #090e1b;border-radius:18px 18px 16px 16px;padding:16px 15px 25px;display:grid;grid-template-columns:repeat(15,1fr);gap:7px;box-shadow:inset 0 5px 9px #ffffff30,inset 0 -10px 14px #0009,0 12px 0 #070a12,0 19px 24px #0009}.keyboard:before{content:"";position:absolute;left:9px;right:9px;bottom:-39px;height:30px;border-radius:0 0 12px 12px;background:linear-gradient(180deg,#30394f,#080c17);border:1px solid #65708a;box-shadow:0 8px 12px #0008;pointer-events:none;z-index:0}
 .key{height:clamp(32px,4.5vw,48px);border-radius:7px;background:linear-gradient(145deg,#a3adc4 0%,#59647e 48%,#30384e 100%);border:1px solid #c3cbe044;box-shadow:0 10px 0 #171c2b,0 13px 12px #000a,inset 0 3px 4px #ffffff55;position:relative}.key:after{content:"";position:absolute;inset:3px 4px auto;height:5px;border-radius:4px;background:#ffffff55;box-shadow:0 1px 2px #ffffff20}.key.space{grid-column:span 5}.key.wide{grid-column:span 2}
 .keyboard.rgb .key{box-shadow:0 0 9px var(--glow),0 10px 0 #171c2b,0 13px 10px #0008,inset 0 3px 4px #ffffff55}
 .stage-floor{width:min(96%,650px);height:18px;background:linear-gradient(90deg,transparent,#8b5cf633,transparent);filter:blur(9px);margin-top:24px}
@@ -29,13 +29,13 @@ select,input[type=range]{width:100%}select{background:#0d1222;color:white;border
 .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:750;cursor:pointer;color:white;background:linear-gradient(135deg,#8b5cf6,#6366f1)}.btn.secondary{background:#ffffff12;border:1px solid #ffffff22}.stats{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
 footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.stage{min-height:350px}}
-@media(max-width:480px){header{padding:15px}.tag{font-size:10px}.stage{min-height:300px;padding:20px 8px}.keyboard{gap:3px;padding:11px 9px 18px;border-bottom-width:17px}.keyboard:before{bottom:-24px;height:18px}.key{height:25px;box-shadow:0 7px 0 #171c2b,0 9px 8px #0009,inset 0 2px 3px #ffffff45}.controls{padding:16px}}
+@media(max-width:480px){header{padding:15px}.tag{font-size:10px}.stage{min-height:300px;padding:20px 8px}.keyboard{gap:3px;padding:11px 9px 18px;border-bottom-width:24px}.keyboard:before{bottom:-30px;height:22px}.key{height:25px;box-shadow:0 7px 0 #171c2b,0 9px 8px #0009,inset 0 2px 3px #ffffff45}.controls{padding:16px}}
 
 /* Drehbare 3D-Studio-Ansicht */
 .stage{touch-action:none;position:relative}
 .scene3d{width:min(94%,650px);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;transform-style:preserve-3d;will-change:transform;cursor:grab;user-select:none}
 .scene3d.dragging{cursor:grabbing}
-.scene3d .keyboard-wrap{transform:translateZ(35px) rotateX(23deg) rotateZ(-4deg);transform-style:preserve-3d}
+.scene3d .keyboard-wrap{transform:translateZ(35px) rotateX(8deg);transform-style:preserve-3d}
 .scene3d .desk{transform:translateZ(-18px) rotateX(8deg)}
 .scene3d .stage-floor{transform:translateZ(-35px)}
 .rotate-hint{color:#b9c2df;font-size:12px;margin-top:10px;text-align:center}
@@ -113,7 +113,7 @@ update();
 // 3D-Drehung per Maus und Touch (Pointer Events)
 const stage=document.querySelector('.stage');
 const scene=document.getElementById('scene3d');
-let rotX=18,rotY=-18,dragging=false,lastX=0,lastY=0;
+let rotX=32,rotY=0,dragging=false,lastX=0,lastY=0;
 function renderRotation(){scene.style.transform=`rotateX(${rotX}deg) rotateY(${rotY}deg)`;}
 function startDrag(e){dragging=true;lastX=e.clientX;lastY=e.clientY;scene.classList.add('dragging');stage.setPointerCapture?.(e.pointerId);}
 function moveDrag(e){if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;rotY+=dx*.65;rotX=Math.max(-12,Math.min(75,rotX-dy*.5));renderRotation();}
@@ -124,7 +124,7 @@ stage.addEventListener('pointerup',endDrag);
 stage.addEventListener('pointercancel',endDrag);
 document.getElementById('viewFront').addEventListener('click',()=>{rotX=12;rotY=0;renderRotation()});
 document.getElementById('viewTop').addEventListener('click',()=>{rotX=68;rotY=0;renderRotation()});
-document.getElementById('viewReset').addEventListener('click',()=>{rotX=18;rotY=-18;renderRotation()});
+document.getElementById('viewReset').addEventListener('click',()=>{rotX=32;rotY=0;renderRotation()});
 renderRotation();
 
 </script>

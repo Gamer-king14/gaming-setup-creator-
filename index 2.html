@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gaming Setup Creator</title>
+<style>
+:root{--bg:#090d18;--panel:#111a2b;--line:#263651;--text:#eef4ff;--muted:#9cacc7;--accent:#8b5cf6}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#26335b 0,#090d18 55%);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
+header{padding:22px clamp(16px,4vw,48px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffffff16}
+.logo{font-weight:900;letter-spacing:.4px;font-size:clamp(20px,3vw,28px)}.logo span{color:#a78bfa}.tag{color:var(--muted);font-size:13px}
+main{max-width:1400px;margin:auto;padding:24px clamp(14px,3vw,36px) 40px;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(270px,.8fr);gap:22px}
+.viewer,.controls{background:linear-gradient(145deg,#141f34ee,#0d1525ee);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 22px 70px #0005}
+.viewer-top{display:flex;justify-content:space-between;align-items:center;padding:17px 20px;border-bottom:1px solid #ffffff12}.viewer-top strong{font-size:15px}.pill{font-size:11px;color:#c4b5fd;background:#8b5cf622;border:1px solid #8b5cf655;padding:6px 10px;border-radius:30px}
+#stage{height:min(66vh,610px);min-height:360px;position:relative;background:radial-gradient(ellipse at 50% 55%,#34446a 0,#18243b 38%,#0b1220 78%);touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}.hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);white-space:nowrap;color:#cbd5e1;background:#08101dcc;border:1px solid #ffffff20;border-radius:30px;padding:8px 13px;font-size:12px;pointer-events:none}
+.viewer-actions{display:flex;gap:9px;flex-wrap:wrap;padding:14px 18px}.btn{border:1px solid #334766;background:#182640;color:#eaf0ff;border-radius:11px;padding:10px 13px;font-weight:700;cursor:pointer}.btn:hover{border-color:#a78bfa}.btn.primary{background:linear-gradient(135deg,#7c3aed,#4f46e5);border:0}
+.controls{padding:20px}.controls h2{margin:0 0 5px;font-size:20px}.sub{color:var(--muted);font-size:13px;margin:0 0 20px}.group{padding:16px 0;border-top:1px solid #ffffff14}.group h3{font-size:13px;margin:0 0 12px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.8px}.field{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:11px 0;font-size:14px}.field input[type=color]{width:48px;height:34px;border:0;background:none;padding:0;cursor:pointer}.field input[type=range]{width:48%}.switch{accent-color:#8b5cf6;width:18px;height:18px}.swatches{display:flex;gap:9px}.swatches button{width:29px;height:29px;border-radius:50%;border:2px solid #ffffff55;cursor:pointer}.small{font-size:12px;color:var(--muted);line-height:1.5}.saved{color:#86efac;font-size:12px;min-height:18px}
+@media(max-width:850px){main{grid-template-columns:1fr}#stage{height:52vh;min-height:330px}.controls{order:2}}@media(max-width:480px){header{align-items:flex-start;gap:8px;flex-direction:column}.viewer-top{padding:14px}.controls{padding:16px}}
+</style>
+</head>
+<body>
+<header><div class="logo">🎮 GAMING <span>SETUP CREATOR</span></div><div class="tag">Dein Setup. Dein Style. Dein Studio.</div></header>
+<main>
+<section class="viewer">
+ <div class="viewer-top"><strong>Dein 3D-Studio</strong><span class="pill">● LIVE 3D</span></div>
+ <div id="stage"><div class="hint">↔ Ziehen zum Drehen · Scrollen zum Zoomen</div></div>
+ <div class="viewer-actions"><button class="btn" id="front">Vorderansicht</button><button class="btn" id="side">Seitenansicht</button><button class="btn" id="top">Draufsicht</button><button class="btn primary" id="save">Setup speichern</button></div>
+</section>
+<aside class="controls">
+ <h2>Setup anpassen</h2><p class="sub">Ändere dein Setup – die 3D-Ansicht reagiert sofort.</p>
+ <div class="group"><h3>🎨 Farben</h3>
+  <label class="field">Tischplatte <input id="deskColor" type="color" value="#292f42"></label>
+  <label class="field">Tastatur <input id="keyboardColor" type="color" value="#20283b"></label>
+  <label class="field">Monitor <input id="monitorColor" type="color" value="#111827"></label>
+  <div class="small">Schnellfarben für die Tastatur</div><div class="swatches" style="margin-top:10px"><button data-color="#20283b" style="background:#20283b"></button><button data-color="#f3f4f6" style="background:#f3f4f6"></button><button data-color="#7c3aed" style="background:#7c3aed"></button><button data-color="#db2777" style="background:#db2777"></button><button data-color="#0f766e" style="background:#0f766e"></button></div>
+ </div>
+ <div class="group"><h3>🌈 RGB-Beleuchtung</h3>
+  <label class="field">RGB einschalten <input class="switch" id="rgb" type="checkbox" checked></label>
+  <label class="field">Helligkeit <input id="brightness" type="range" min="0" max="100" value="70"></label>
+  <label class="field">RGB-Farbe <input id="rgbColor" type="color" value="#8b5cf6"></label>
+ </div>
+ <div class="group"><h3>🖥️ Bildschirm</h3>
+  <label class="field">Bildschirm an <input class="switch" id="screenOn" type="checkbox" checked></label>
+  <label class="field">Bildschirmfarbe <input id="screenColor" type="color" value="#2563eb"></label>
+ </div>
+ <div class="group"><h3>💾 Dein Projekt</h3>
+  <label class="field">Name <input id="setupName" value="Mein Gaming Setup" maxlength="30" style="width:58%;background:#0b1322;color:white;border:1px solid #334766;border-radius:8px;padding:8px"></label>
+  <div class="saved" id="status"></div><button class="btn" id="reset" style="width:100%;margin-top:8px">Zurücksetzen</button>
+ </div>
+ <p class="small">Tipp: Du kannst die Szene mit Maus oder Finger drehen. Auf dem Handy funktioniert das genauso.</p>
+</aside>
+</main>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+const stage=document.querySelector('#stage');
+const scene=new THREE.Scene();scene.background=new THREE.Color('#111b2e');scene.fog=new THREE.Fog('#111b2e',12,24);
+const camera=new THREE.PerspectiveCamera(42,stage.clientWidth/stage.clientHeight,.1,100);camera.position.set(6,5,8);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.1,0);controls.enableDamping=true;controls.maxPolarAngle=Math.PI*.48;controls.minDistance=4;controls.maxDistance=14;
+scene.add(new THREE.HemisphereLight(0xb8d5ff,0x202033,2));
+const keyLight=new THREE.DirectionalLight(0xffffff,3);keyLight.position.set(4,8,5);keyLight.castShadow=true;scene.add(keyLight);
+const rim=new THREE.PointLight(0x8055ff,30,12);rim.position.set(-4,3,-3);scene.add(rim);
+function mat(color,rough=.55,metal=0){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
+function cube(parent,w,h,d,material,x,y,z,bevel=0){let geo=new THREE.BoxGeometry(w,h,d);let m=new THREE.Mesh(geo,material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+const floor=cube(scene,200,.1,200,mat('#101827'),0,-.1,0);
+const deskMat=mat('#292f42',.36),keyMat=mat('#20283b',.35),monitorMat=mat('#111827',.3,.25);
+const desk=cube(scene,6,.18,3,deskMat,0,1.05,0);
+for(const x of [-2.65,2.65])for(const z of [-1.22,1.22])cube(scene,.14,1,.14,mat('#171d2c',.4,.4),x,.5,z);
+const monitor=cube(scene,2.65,1.55,.13,monitorMat,0,2.0,-1.02);
+const screenMaterial=new THREE.MeshStandardMaterial({color:'#2563eb',emissive:'#123a9a',emissiveIntensity:1.1,roughness:.3});
+const screen=cube(scene,2.48,1.38,.025,screenMaterial,0,2.01,-.94);
+cube(scene,.13,.62,.13,mat('#4b5563',.3,.6),0,1.22,-1.02);cube(scene,.85,.08,.5,mat('#30394d',.3,.5),0,1.08,-1.02);
+const keyboardGroup=new THREE.Group();scene.add(keyboardGroup);
+const keyboardBase=cube(keyboardGroup,2.45,.16,.82,keyMat,0,1.2,.18);
+const keyMeshes=[];const keyTopMat=mat('#65718a',.38);
+for(let r=0;r<5;r++)for(let c=0;c<14;c++){let x=-1.08+c*.166,z=-.14+r*.145;let k=cube(keyboardGroup,.135,.075,.115,keyTopMat,x,1.315,z);keyMeshes.push(k)}
+const mouseGroup=new THREE.Group();scene.add(mouseGroup);
+const mouse=cube(mouseGroup,.42,.2,.58,mat('#252e44',.25),1.75,1.24,.18);mouse.rotation.y=-.16;
+const tower=cube(scene,.78,1.75,.85,mat('#171e30',.3,.3),2.25,1.0,-.55);
+const towerGlow=cube(scene,.04,1.25,.04,mat('#8b5cf6',.25,.2),2.25,1.0,-.105);
+const rgbMaterial=new THREE.MeshStandardMaterial({color:'#8b5cf6',emissive:'#8b5cf6',emissiveIntensity:1.3});
+const strip=cube(scene,2.8,.025,.025,rgbMaterial,0,.93,1.48);
+const keyRgb=new THREE.MeshStandardMaterial({color:'#8b5cf6',emissive:'#8b5cf6',emissiveIntensity:.7});
+keyMeshes.forEach(k=>k.material=keyRgb);
+function resize(){let w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}
+new ResizeObserver(resize).observe(stage);resize();
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
+const $=id=>document.getElementById(id);
+function setColor(id,material){$(id).addEventListener('input',e=>material.color.set(e.target.value))}
+setColor('deskColor',deskMat);setColor('keyboardColor',keyMat);setColor('monitorColor',monitorMat);
+$('keyboardColor').addEventListener('input',e=>keyTopMat.color.set(e.target.value));
+$('screenColor').addEventListener('input',e=>{screenMaterial.color.set(e.target.value);screenMaterial.emissive.set(e.target.value)});
+$('rgbColor').addEventListener('input',e=>{rgbMaterial.color.set(e.target.value);rgbMaterial.emissive.set(e.target.value);keyRgb.color.set(e.target.value);keyRgb.emissive.set(e.target.value)});
+$('rgb').addEventListener('change',e=>{let on=e.target.checked;strip.visible=on;keyMeshes.forEach(k=>k.material=on?keyRgb:keyTopMat)});
+$('brightness').addEventListener('input',e=>{let v=Number(e.target.value)/100;rgbMaterial.emissiveIntensity=v*2;keyRgb.emissiveIntensity=v});
+$('screenOn').addEventListener('change',e=>{screen.visible=e.target.checked});
+document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{$('keyboardColor').value=b.dataset.color;keyMat.color.set(b.dataset.color);keyTopMat.color.set(b.dataset.color)}));
+function view(pos){camera.position.set(...pos);controls.target.set(0,1.1,0);controls.update()}
+$('front').onclick=()=>view([0,3.2,10]);$('side').onclick=()=>view([10,3,0]);$('top').onclick=()=>view([0,11,.1]);
+const defaults={deskColor:'#292f42',keyboardColor:'#20283b',monitorColor:'#111827',rgb:true,brightness:70,rgbColor:'#8b5cf6',screenOn:true,screenColor:'#2563eb',setupName:'Mein Gaming Setup'};
+function apply(s){Object.entries(s).forEach(([k,v])=>{let el=$(k);if(!el)return;if(el.type==='checkbox')el.checked=v;else el.value=v;el.dispatchEvent(new Event(el.type==='checkbox'?'change':'input'))})}
+$('save').onclick=()=>{let s={};Object.keys(defaults).forEach(k=>s[k]=$(k).type==='checkbox'?$(k).checked:$(k).value);localStorage.setItem('gsc3d',JSON.stringify(s));$('status').textContent='✓ „'+$('setupName').value+'“ wurde gespeichert!'};
+$('reset').onclick=()=>{apply(defaults);$('status').textContent='Zurückgesetzt.'};
+try{let s=JSON.parse(localStorage.getItem('gsc3d'));if(s)apply({...defaults,...s})}catch(e){}
+</script>
+</body></html>

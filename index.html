@@ -30,6 +30,19 @@ select,input[type=range]{width:100%}select{background:#0d1222;color:white;border
 footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.stage{min-height:350px}}
 @media(max-width:480px){header{padding:15px}.tag{font-size:10px}.stage{min-height:300px;padding:20px 8px}.keyboard{gap:3px;padding:9px}.key{height:19px}.controls{padding:16px}}
+
+/* Drehbare 3D-Studio-Ansicht */
+.stage{touch-action:none;position:relative}
+.scene3d{width:min(94%,650px);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;transform-style:preserve-3d;will-change:transform;cursor:grab;user-select:none}
+.scene3d.dragging{cursor:grabbing}
+.scene3d .keyboard-wrap{transform:translateZ(35px) rotateX(23deg) rotateZ(-4deg);transform-style:preserve-3d}
+.scene3d .desk{transform:translateZ(-18px) rotateX(8deg)}
+.scene3d .stage-floor{transform:translateZ(-35px)}
+.rotate-hint{color:#b9c2df;font-size:12px;margin-top:10px;text-align:center}
+.view-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:0 12px 16px}
+.view-actions button{background:#ffffff12;color:#f4f6ff;border:1px solid #ffffff25;border-radius:10px;padding:8px 12px;font-weight:650}
+@media(max-width:480px){.scene3d{min-height:240px}.rotate-hint{font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -41,8 +54,12 @@ footer{text-align:center;color:#75809f;font-size:12px;padding:22px}
  <div class="panel-head"><strong>✨ Dein 3D-Studio</strong><small>Vorschau · Tastatur</small></div>
  <div class="stage">
   <div class="stage-label">DESIGN VIEW / 001</div>
-  <div class="keyboard-wrap"><div class="keyboard rgb" id="keyboard"></div></div>
-  <div class="desk"></div><div class="stage-floor"></div>
+  <div class="scene3d" id="scene3d" aria-label="Drehbare 3D-Ansicht deiner Tastatur">
+   <div class="keyboard-wrap"><div class="keyboard rgb" id="keyboard"></div></div>
+   <div class="desk"></div><div class="stage-floor"></div>
+  </div>
+  <div class="rotate-hint">👆 Mit Finger oder Maus ziehen, um die Ansicht zu drehen</div>
+  <div class="view-actions"><button type="button" id="viewFront">Vorne</button><button type="button" id="viewTop">Oben</button><button type="button" id="viewReset">Ansicht zurücksetzen</button></div>
  </div>
  <div class="panel-head"><strong id="designName">Neon Purple</strong><small id="status">Live-Vorschau aktiv</small></div>
 </section>
@@ -92,6 +109,24 @@ document.getElementById('preset').addEventListener('change',update);
 document.getElementById('save').addEventListener('click',()=>{const design={...state,name:document.getElementById('preset').value};try{localStorage.setItem('gsc-design',JSON.stringify(design));document.getElementById('saved').textContent='✓ Lokal gespeichert';document.getElementById('status').textContent='Design gespeichert'}catch(e){document.getElementById('saved').textContent='Speichern nicht verfügbar'}});
 document.getElementById('reset').addEventListener('click',()=>{state.case='#252b40';state.rgb=true;state.brightness=70;state.style='classic';document.getElementById('brightness').value=70;document.getElementById('rgbToggle').checked=true;document.getElementById('keyStyle').value='classic';document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.color==='#252b40')));document.getElementById('preset').value='Neon Purple';document.getElementById('saved').textContent='Noch nicht gespeichert';update()});
 update();
+
+// 3D-Drehung per Maus und Touch (Pointer Events)
+const stage=document.querySelector('.stage');
+const scene=document.getElementById('scene3d');
+let rotX=18,rotY=-18,dragging=false,lastX=0,lastY=0;
+function renderRotation(){scene.style.transform=`rotateX(${rotX}deg) rotateY(${rotY}deg)`;}
+function startDrag(e){dragging=true;lastX=e.clientX;lastY=e.clientY;scene.classList.add('dragging');stage.setPointerCapture?.(e.pointerId);}
+function moveDrag(e){if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;rotY+=dx*.65;rotX=Math.max(-12,Math.min(75,rotX-dy*.5));renderRotation();}
+function endDrag(){dragging=false;scene.classList.remove('dragging');}
+stage.addEventListener('pointerdown',startDrag);
+stage.addEventListener('pointermove',moveDrag);
+stage.addEventListener('pointerup',endDrag);
+stage.addEventListener('pointercancel',endDrag);
+document.getElementById('viewFront').addEventListener('click',()=>{rotX=12;rotY=0;renderRotation()});
+document.getElementById('viewTop').addEventListener('click',()=>{rotX=68;rotY=0;renderRotation()});
+document.getElementById('viewReset').addEventListener('click',()=>{rotX=18;rotY=-18;renderRotation()});
+renderRotation();
+
 </script>
 </body>
 </html>
